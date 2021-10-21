@@ -10,10 +10,10 @@ class TestAuthAPI:
                                data={'username': admin.username, 'password': '1234567'})
 
         assert response.status_code != 404, \
-            'Page `auth/jwt/create/` не найдена'
+            'Page `auth/jwt/create/` not found'
 
         assert response.status_code == 200, \
-            'Страница `auth/jwt/create/` работает не правильно'
+            'Page `auth/jwt/create/` works incorrect'
 
         auth_data = response.json()
-        assert 'access' in auth_data and auth_data.get('access'), 'При POST запросе `/auth/jwt/create/` не возвращается токен'
+        assert 'access' in auth_data and auth_data.get('access'), 'POST request `/auth/jwt/create/` not return токен'

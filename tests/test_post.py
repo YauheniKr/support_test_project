@@ -8,24 +8,24 @@ class TestPostAPI:
     def test_post_not_found(self, client, post):
         response = client.get('/api/v1/posts/')
 
-        assert response.status_code != 404, 'Страница `/api/v1/posts/` не найдена'
+        assert response.status_code != 404, 'Page `/api/v1/posts/` not found'
 
     @pytest.mark.django_db(transaction=True)
     def test_post_not_auth(self, client, post):
         response = client.get('/api/v1/posts/')
 
         assert response.status_code == 401, \
-            'Проверьте, что `/api/v1/posts/` при запросе без токена возвращаете статус 401'
+            'Check `/api/v1/posts/` without token returns status 401'
 
     @pytest.mark.django_db(transaction=True)
     def test_posts_get(self, user_client, post, another_post):
         response = user_client.get('/api/v1/posts/')
         assert response.status_code == 200, \
-            'При GET запросе `/api/v1/posts/` с токеном авторизации не возвращаетсся статус 200'
+            'GET request `/api/v1/posts/` with token not returns status 200'
 
         test_data = response.json()
         assert len(test_data) == Post.objects.count(), \
-            'При GET запросе на `/api/v1/posts/` не возвращается весь список постов'
+            'GET request `/api/v1/posts/` post lists not returns'
 
     @pytest.mark.django_db(transaction=True)
     def test_post_create(self, user_client1, admin, another_user):
@@ -34,60 +34,60 @@ class TestPostAPI:
         data = {}
         response = user_client1.post('/api/v1/posts/', data=data)
         assert response.status_code == 400, \
-            'При POST запросе на `/api/v1/posts/` с не правильными данными не возвращается статус 400'
+            'POST request  `/api/v1/posts/` with incorrect data not return 400'
 
         data = {'author': another_user.id, 'text': 'Статья номер 3'}
         response = user_client1.post('/api/v1/posts/', data=data)
         assert response.status_code == 201, \
-            'При POST запросе на `/api/v1/posts/` с правильными данными не возвращается статус 201'
+            'POST request `/api/v1/posts/` with correct data not return status 201'
 
         test_data = response.json()
-        msg_error = 'Проверьте, что при POST запросе на `/api/v1/posts/` возвращается словарь с данными новой статьи'
+        msg_error = 'POST request `/api/v1/posts/` not return dict with new post data'
         assert type(test_data) == dict, msg_error
         assert test_data.get('text') == data['text'], msg_error
 
         assert test_data.get('author') == another_user.username, \
-            'При POST запросе на `/api/v1/posts/` не создается статья от авторизованного пользователя'
+            'POST request `/api/v1/posts/` not create post from auth user'
         assert post_count + 1 == Post.objects.count(), \
-            'При POST запросе на `/api/v1/posts/` не создается статья'
+            'POST request `/api/v1/posts/` not create post'
 
     @pytest.mark.django_db(transaction=True)
     def test_post_get_current(self, user_client, post, admin):
         response = user_client.get(f'/api/v1/posts/{post.id}/')
         assert response.status_code == 200, \
-            'Страница `/api/v1/posts/{id}/` не найдена'
+            'Page `/api/v1/posts/{id}/` not found'
 
     @pytest.mark.django_db(transaction=True)
     def test_post_patch_current(self, user_client, user_client1, post, another_post):
         response = user_client.patch(f'/api/v1/posts/{post.id}/',
-                                     data={'text': 'Поменяли текст статьи'})
+                                     data={'text': 'Post changed'})
 
         assert response.status_code == 200, \
-            'При PATCH запросе `/api/v1/posts/{id}/` не возвращается статус 200'
+            'PATCH request `/api/v1/posts/{id}/` not return status 200'
 
         test_post = Post.objects.filter(id=post.id).first()
 
-        assert test_post.text == 'Поменяли текст статьи', \
-            'При PATCH запросе `/api/v1/posts/{id}/` не изменяется статья'
+        assert test_post.text == 'Post changed', \
+            'PATCH request `/api/v1/posts/{id}/` not change post'
 
         response = user_client1.patch(f'/api/v1/posts/{post.id}/',
-                                     data={'text': 'Поменяли текст статьи'})
+                                     data={'text': 'Post changed'})
 
         assert response.status_code == 403, \
-            'При PATCH запросе `/api/v1/posts/{id}/` для не своей статьи возвращается статус 403'
+            'PATCH request `/api/v1/posts/{id}/` for not own post returns 403'
 
     @pytest.mark.django_db(transaction=True)
     def test_post_delete_current(self, user_client, user_client1, post, another_post):
         response = user_client.delete(f'/api/v1/posts/{post.id}/')
 
         assert response.status_code == 204, \
-            'При DELETE запросе `/api/v1/posts/{id}/` возвращается статус 204'
+            'DELETE request `/api/v1/posts/{id}/` not return status 204'
 
         test_post = Post.objects.filter(id=post.id).first()
 
-        assert not test_post, 'При DELETE запросе `/api/v1/posts/{id}/` не удаляется статья'
+        assert not test_post, 'DELETE request `/api/v1/posts/{id}/` not delete post'
 
         response = user_client1.delete(f'/api/v1/posts/{another_post.id}/')
 
         assert response.status_code == 403, \
-            'При DELETE запросе `/api/v1/posts/{id}/` для не своей статьи не возвращается статус 403'
+            'DELETE request `/api/v1/posts/{id}/` for not own post return status  403'

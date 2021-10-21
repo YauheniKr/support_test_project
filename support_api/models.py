@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from support_api.choices import Role
+from support_api.choices import Role, Status
 from support_api.managers import UserManager
 
 
@@ -18,15 +18,10 @@ class User(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == self.Role.ADMIN
+        return self.role == Role.ADMIN
 
 
 class Post(models.Model):
-    class Status(models.TextChoices):
-        OPEN = 'Open'
-        IN_PROGRESS = 'In progress'
-        CLOSE = 'Close'
-
     text = models.TextField()
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')

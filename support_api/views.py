@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from support_api.models import Post
 from support_api.permissions import IsAuthenticated
 from support_api.serializers import PostSerializer, CommentSerializer
+from support_api.service import PostStatusCheck
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -37,9 +38,6 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         post = get_object_or_404(Post, pk=self.kwargs.get('post_id'))
-        if post.status == 'Close':
-            raise ValueError('Couldn"t create comments. Post is Closed')
-        if post.status == 'open':
-            post.status = 'In progress'
-            post.save()
+        post_status = PostStatusCheck(post)
+        post_status.__change_post_status__()
         serializer.save(author=self.request.user, post=post)

@@ -10,7 +10,7 @@ class TestAuthAPI:
                                data={'username': admin.username, 'password': '1234567'})
 
         assert response.status_code != 404, \
-            'Страница `auth/jwt/create/` не найдена'
+            'Page `auth/jwt/create/` не найдена'
 
         assert response.status_code == 200, \
             'Страница `auth/jwt/create/` работает не правильно'

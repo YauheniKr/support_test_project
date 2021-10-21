@@ -1,16 +1,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from .managers import UserManager
+from support_api.choices import Role
+from support_api.managers import UserManager
 
 
 class User(AbstractUser):
-    class Role(models.TextChoices):
-        USER = 'user'
-        ADMIN = 'admin'
-
     role = models.TextField(verbose_name='role', choices=Role.choices, default='user')
-    USERNAME_FIELD = 'username'
 
     class Meta:
         ordering = ['-id']

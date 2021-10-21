@@ -1,11 +1,10 @@
-from celery import signature
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
-from .models import Post
-from .permissions import IsAuthenticated
-from .serializers import PostSerializer, CommentSerializer
+from support_api.models import Post
+from support_api.permissions import IsAuthenticated
+from support_api.serializers import PostSerializer, CommentSerializer
 
 
 class PostViewSet(viewsets.ModelViewSet):
